@@ -15,6 +15,12 @@ First you have to activate python environment with command `source python/bin/ac
 
 If you want to add permanently the environment variables you could add the command `export FLASK_APP=server.py` to the `~/.profile` file
 
+### Deploy to heroku
+
+Commit your changes and then run CLI command
+
+- `git push origin master && git push heroku master`
+
 ### Links
 
 - `https://flask.palletsprojects.com/en/1.1.x/installation/#installation`
