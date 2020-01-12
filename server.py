@@ -70,8 +70,6 @@ def getHist():
     delta = endDate - startDate       # as timedelta
 
     print('delta', delta)
-    # print('sdate', sdate)
-    # f= open("data.txt","w+")
     i=1
     for i in range(delta.days + 1):
         
