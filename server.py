@@ -1,7 +1,25 @@
 from flask import Flask
 from flask import request
 from flask_cors import CORS
+from flask import jsonify
 import requests 
+
+# data processing
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+
+# load utilities
+import sys
+sys.path.append('./utils/')
+import json
+import parsedate
+import histogram
+
+# date processing 
+
+from datetime import date, timedelta
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +35,7 @@ def health():
 
 @app.route('/getKinos')
 def getKinos():
+    print('1')
      # here we want to get the value of user (i.e. ?user=some-value)
     date = request.args.get('date')
     # # api-endpoint 
@@ -27,8 +46,57 @@ def getKinos():
   
     # extracting data in json format 
     data = r.json()
-
-    # print('data',data[0])
     return data
 
-  
+@app.route('/getHist')
+def getHist():
+
+    # http://localhost:5000/getHist?startDate=2020-01-01&endDate=2020-01-01&limit=180
+    # http://localhost:5000/getHist?startDate=2020-01-01&endDate=2020-01-05&limit=180
+    kinos=[]
+     # here we want to get the value of user (i.e. ?user=some-value)
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    limit = request.args.get('limit')
+
+    startDate=parsedate.parse_date(startDate)
+    print('startDate',startDate)
+
+    endDate=parsedate.parse_date(endDate)
+    print('endDate',endDate)
+
+    # # edate = date(2008, 9, 15)   # end date
+
+    delta = endDate - startDate       # as timedelta
+
+    print('delta', delta)
+    # print('sdate', sdate)
+    # f= open("data.txt","w+")
+    i=1
+    for i in range(delta.days + 1):
+        
+        day = startDate + timedelta(days=i)
+        URL = f"https://api.opap.gr/draws/v3.0/1100/draw-date/{day}/{day}?limit={limit}"
+        r = requests.get(url = URL) 
+        data = r.json()
+        print('---------------------------------------------------------------------')
+        content=data["content"] 
+        for draw in content: 
+           kino=draw["winningNumbers"]["bonus"][0]
+           kinos.append(kino)
+        print('totalElements',data["totalElements"])
+        print('loop:',i)
+    
+    print('kinos:',kinos)
+    print('------------------')
+    kinos.sort()
+    print('kinos sorted:',kinos)
+    print('kinos length:',len(kinos))
+    '''
+    Converting kinos to json
+    ''' 
+    histogramValues=histogram.computeHist(kinos)
+    print('histogram values', histogramValues)
+    jsonKinos = json.dumps(kinos)
+    # return jsonKinos
+    return json.dumps(histogramValues)
