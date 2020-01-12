@@ -53,7 +53,8 @@ def getHist():
 
     # http://localhost:5000/getHist?startDate=2020-01-01&endDate=2020-01-01&limit=180
     # http://localhost:5000/getHist?startDate=2020-01-01&endDate=2020-01-05&limit=180
-    kinos=[]
+    kinoBonus=[]
+    kinoData=[]
      # here we want to get the value of user (i.e. ?user=some-value)
     startDate = request.args.get('startDate')
     endDate = request.args.get('endDate')
@@ -80,21 +81,30 @@ def getHist():
         print('---------------------------------------------------------------------')
         content=data["content"] 
         for draw in content: 
-           kino=draw["winningNumbers"]["bonus"][0]
-           kinos.append(kino)
+            kino=draw["winningNumbers"]["bonus"][0]
+            kinoBonus.append(kino)
+            kinoData.append({
+               "kino":kino,
+               "drawTime":draw["drawTime"],
+               "drawId":draw["drawId"]
+            })
         print('totalElements',data["totalElements"])
         print('loop:',i)
     
-    print('kinos:',kinos)
+    print('kinoBonus:',kinoBonus)
     print('------------------')
-    kinos.sort()
-    print('kinos sorted:',kinos)
-    print('kinos length:',len(kinos))
+    kinoBonus.sort()
+    print('kinos sorted:',kinoBonus)
+    print('kinos length:',len(kinoBonus))
     '''
     Converting kinos to json
     ''' 
-    histogramValues=histogram.computeHist(kinos)
-    print('histogram values', histogramValues)
-    jsonKinos = json.dumps(kinos)
-    # return jsonKinos
-    return json.dumps(histogramValues)
+    histogramResults=histogram.computeHist(kinoBonus)
+    jsonKinos = json.dumps(kinoBonus)
+
+    return json.dumps({
+        "histogramResults":histogramResults,
+        "kinos":kinoBonus,
+        "kinoData":kinoData
+
+    })
